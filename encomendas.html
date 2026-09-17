@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="pt-pt">
+<head>
+    <meta charset="UTF-8">
+    <title>Pastelaria - Encomendas</title>
+    <link rel="stylesheet" href="style.css">
+
+    <!-- React + Babel -->
+    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+    <!-- EmailJS -->
+    <script src="https://cdn.jsdelivr.net/npm/emailjs-com@3/dist/email.min.js"></script>
+    <script>
+        emailjs.init("TirZZX9yuOh2KU_LC"); 
+    </script>
+</head>
+
+<body>
+    <div id="wrapper">
+
+        <header>
+            <h1>Encomendas</h1>
+            <div id="relogio-container">
+            <span id="data-hora"></span>
+            </div>
+        </header>
+
+        <nav>
+            <ul class="menu-principal">
+                <li><a href="index.html">Início</a></li>
+                <li class="dropdown">
+                <a href="#">Produtos ▾</a>
+            <ul class="submenu">
+                <li><a href="doces.html">Doces</a></li>
+                <li><a href="salgados.html">Salgados</a></li>
+                <li><a href="bebidas.html">Bebidas</a></li>
+            </ul>
+            </li>
+                <li><a href="#">Encomendas</a></li>
+                <li><a href="contactos.html">Contactos</a></li>
+            </ul>
+        </nav>
+
+        <main>
+            <div id="root-encomenda"></div>
+        </main>
+    </div>
+
+    <footer>
+            <p>&copy; 2026 Pastelaria - Trabalho Prático AI1</p>
+    </footer>
+
+<script type="text/babel">
+    const { useState } = React;
+
+    function FormularioEncomenda() {
+        const [formData, setFormData] = useState({
+            nome: '',
+            email: '',
+            telefone: '',
+            encomenda: '',
+            quantidade: ''
+        });
+
+        const [mensagemSucesso, setMensagemSucesso] = useState('');
+
+        const handleChange = (e) => {
+            const { name, value } = e.target;
+            setFormData({ ...formData, [name]: value });
+        };
+
+        const handleSubmit = (e) => {
+            e.preventDefault();
+
+            if (!formData.nome || !formData.email || !formData.encomenda || !formData.quantidade) {
+                alert("Por favor, preencha os campos obrigatórios.");
+                return;
+            }
+
+            const templateParams = {
+                nome: formData.nome,
+                email: formData.email,
+                telefone: formData.telefone,
+                encomenda: formData.encomenda,
+                quantidade: formData.quantidade,
+            };
+
+            emailjs.send(
+                "service_2e82u3q",
+                "template_gayrqyf",
+                templateParams
+            )
+            .then(() => {
+                setMensagemSucesso("Encomenda enviada com sucesso!");
+            })
+            .catch((error) => {
+                console.error("Erro ao enviar email:", error);
+            });
+
+            localStorage.setItem('ultima_encomenda', JSON.stringify(formData));
+
+            setFormData({ nome: '', email: '', telefone: '', encomenda: '', quantidade: '' });
+        };
+
+        return (
+            <section className="form-container">
+                <h2>Faça a sua encomenda</h2>
+                {mensagemSucesso && <p className="alerta-sucesso">{mensagemSucesso}</p>}
+
+                <form onSubmit={handleSubmit}>
+                    <label>Nome *</label>
+                    <input type="text" name="nome" value={formData.nome} onChange={handleChange} required />
+
+                    <label>Email *</label>
+                    <input type="email" name="email" value={formData.email} onChange={handleChange} required />
+
+                    <label>Telefone</label>
+                    <input type="tel" name="telefone" value={formData.telefone} onChange={handleChange} />
+
+                    <label>Encomenda *</label>
+                    <select name="encomenda" value={formData.encomenda} onChange={handleChange} required>
+                        <option value="" disabled hidden>Selecione uma opção...</option>
+                        <option value="Ovos Moles">Ovos Moles</option>
+                        <option value="Pastel de Feijão">Pastel de Feijão</option>
+                        <option value="Folhado">Folhado</option>
+                        <option value="Ginja">Ginja</option>
+                        <option value="Jeropiga">Jeropiga</option>
+                        <option value="Rissois">Rissois</option>
+                        <option value="Pastel de Nata">Pastel de Nata</option>
+                        <option value="Licor Pastel de Nata">Licor Pastel de Nata</option>
+                        <option value="Empadas">Empadas</option>
+                    </select>
+
+                    <label>Quantidade *</label>
+                    <input type="number" name="quantidade" value={formData.quantidade} onChange={handleChange} required />
+
+                    <button type="submit">Adicionar ao carrinho</button>
+                </form>
+            </section>
+        );
+    }
+
+    const root = ReactDOM.createRoot(document.getElementById('root-encomenda'));
+    root.render(<FormularioEncomenda />);
+</script>
+
+<script src="main.js"></script>
+
+</body>
+</html>

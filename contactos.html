@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="pt-pt">
+<head>
+    <meta charset="UTF-8">
+    <title>Pastelaria - Contactos</title>
+    <link rel="stylesheet" href="style.css">
+
+    <!-- React + Babel -->
+    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+    <!-- EmailJS -->
+    <script src="https://cdn.jsdelivr.net/npm/emailjs-com@3/dist/email.min.js"></script>
+    <script>
+        emailjs.init("TirZZX9yuOh2KU_LC");
+    </script>
+</head>
+
+<body>
+    <div id="wrapper">
+
+        <header>
+            <h1>Pastelaria</h1>
+            <div id="relogio-container">
+                <span id="data-hora"></span>
+            </div>
+        </header>
+
+        <nav>
+            <ul class="menu-principal">
+                <li><a href="index.html">Início</a></li>
+                <li class="dropdown">
+                    <a href="#">Produtos ▾</a>
+                    <ul class="submenu">
+                        <li><a href="doces.html">Doces</a></li>
+                        <li><a href="salgados.html">Salgados</a></li>
+                        <li><a href="bebidas.html">Bebidas</a></li>
+                    </ul>
+                </li>
+                <li><a href="encomendas.html">Encomendas</a></li>
+                <li><a href="#">Contactos</a></li>
+            </ul>
+        </nav>
+
+        <main>
+            <div id="root-contacto"></div>
+        </main>
+
+    </div>
+
+    <footer>
+            <p>&copy; 2026 Pastelaria - Trabalho Prático AI1</p>
+    </footer>
+
+<script type="text/babel">
+    const { useState } = React;
+
+    function FormularioContacto() {
+        const [formData, setFormData] = useState({
+            nome: '',
+            motivo: '',
+            email: '',
+            telefone: '',
+            mensagem: ''
+        });
+
+        const [mensagemSucesso, setMensagemSucesso] = useState('');
+
+        const handleChange = (e) => {
+            const { name, value } = e.target;
+            setFormData({ ...formData, [name]: value });
+        };
+
+        const handleSubmit = (e) => {
+            e.preventDefault();
+
+            if (!formData.nome || !formData.email || !formData.mensagem || !formData.motivo) {
+                alert("Por favor, preencha os campos obrigatórios.");
+                return;
+            }
+
+            const templateParams = {
+                nome: formData.nome,
+                email: formData.email,
+                telefone: formData.telefone,
+                motivo: formData.motivo,
+                mensagem: formData.mensagem
+            };
+
+            emailjs.send(
+                "service_2e82u3q",
+                "template_7w6uazr",
+                templateParams
+            )
+            .then(() => {
+                setMensagemSucesso("Mensagem enviada com sucesso!");
+            })
+            .catch((error) => {
+                console.error("Erro ao enviar email:", error);
+            });
+
+            localStorage.setItem('ultimo_contacto', JSON.stringify(formData));
+
+            setFormData({ nome: '', motivo: '', email: '', telefone: '', mensagem: '' });
+        };
+
+        return (
+            <section className="form-contactos">
+                <h2>Entre em Contacto</h2>
+                {mensagemSucesso && <p className="alerta-sucesso">{mensagemSucesso}</p>}
+
+                <form onSubmit={handleSubmit}>
+                    <label>Nome *</label>
+                    <input type="text" name="nome" value={formData.nome} onChange={handleChange} required />
+
+                    <label>Email *</label>
+                    <input type="email" name="email" value={formData.email} onChange={handleChange} required />
+
+                    <label>Telefone</label>
+                    <input type="tel" name="telefone" value={formData.telefone} onChange={handleChange} />
+
+                    <label>Motivo *</label>
+                    <select name="motivo" value={formData.motivo} onChange={handleChange} required>
+                        <option value="" disabled hidden>Selecione uma opção...</option>
+                        <option value="Sugestão">Sugestão</option>
+                        <option value="Reclamação">Reclamação</option>
+                    </select>
+
+                    <label>Mensagem *</label>
+                    <textarea name="mensagem" value={formData.mensagem} onChange={handleChange} required></textarea>
+
+                    <button type="submit">Submeter</button>
+                </form>
+            </section>
+        );
+    }
+
+    const root = ReactDOM.createRoot(document.getElementById('root-contacto'));
+    root.render(<FormularioContacto />);
+</script>
+
+<script src="main.js"></script>
+
+</body>
+</html>
